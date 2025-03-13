@@ -1,12 +1,23 @@
 #!/bin/bash
 # File Copy Script
 
-usb_name="sda1"
+################################################################
+# Make sure script is run as root
+if [ "$(id -u)" != "0" ]; then
+    echo "Error: must be run as root. Try: sudo install.h"
+    exit 1
+fi
 
-# Define the directories
-usb_dir="/dev/sda1"
-source_dir="/mnt/usb"
-target_dir="/home/pi/Videos"
+################################################################
+# Define directories
+usb_name="sda1"
+usb_dir="/dev/$usb_name"
+
+source_dir="/mnt"
+target_dir="/home/$SUDO_USER/Videos"
+
+################################################################
+# Mount USB
 
 # Check if USB is already mounted
 if mountpoint -q "$usb_dir"; then
@@ -17,7 +28,6 @@ fi
 echo "Searching for USB drive..."
 if ! lsblk -o NAME | grep -q  "$usb_name"; then
     echo "No USB found."
-    sleep 3
     exit 1
 fi
 
@@ -35,6 +45,9 @@ else
     sleep 3
     exit 1
 fi
+
+################################################################
+# Copy video files
 
 # List of video file extensions to consider
 video_extensions="mp4|avi|mov|mkv|flv|wmv|webm"
@@ -58,5 +71,7 @@ done
 sudo umount "$source_dir"
 echo "Device $usb_dir unmounted."
 
+################################################################
 # Finish
 echo "Operation completed."
+exit 0
